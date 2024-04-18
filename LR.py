@@ -24,8 +24,21 @@ def linear_regression(X, Y):
                    # so X is literally our A matrix
 
     ### Your job starts here ###
+    # Tranpose the matrix for multiplication later
+    aTransposed = np.transpose(A)
 
-    p= #Solve for the parameters, refer to slide 19
+    # Multiply the matrices
+    aMultiplied = np.matmul(aTransposed, A)
+
+    # Take the inverse of the multiplied matrices
+    invAMul = np.linalg.inv(aMultiplied)
+
+    # Multiply them with A tranposed again
+    pBeforeB = np.matmul(invAMul, aTransposed)
+
+    # Finally, perform the final multiplication with the b vector, in this case
+    # it's Y, the output vector of the polynomial with varying parameters
+    p = np.matmul(pBeforeB, Y)
 
     ### Your job ends here ###
     return p
@@ -46,7 +59,10 @@ def polynomial_regression(X, Y, degree):
 
     ### Your job starts here ###
 
-    A= #Constuct the proper A matrix for a polynomial, refer to slide 22
+    # Constuct the proper A matrix for a polynomial, refer to slide 22
+    powers = np.arange(degree + 1)
+
+    A = X ** powers
 
     ### Your job ends here ###
     
