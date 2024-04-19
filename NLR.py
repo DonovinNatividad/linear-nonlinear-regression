@@ -27,13 +27,21 @@ def calc_jacobian(X,p):
 
     ### Your job starts here ###
 
-    raise NotImplementedError() #DELETE AND ADD YOUR CODE
+    # Fill in Jacobian Matrix by Row
+    a, b, c = p[0, 0], p[1, 0], p[2, 0]
+
+    for i in range(N):
+        # Grab parameters and current data value
+        x = X[i, 0]
+
+        # Now we must take the derivative with respect to each parameter
+        J[i, 0], J[i, 1], J[i, 2], J[i, 3] = x**b, a * (x**b) * np.log(x), x, 1
 
     ### Your job ends here ###
 
     return J
 
-GAUSS_NEWTON_ITERATIONS=1000 #PLEASE change your iteration count here
+GAUSS_NEWTON_ITERATIONS=10 #PLEASE change your iteration count here
 def nonlinear_regression_gn(X, Y, initialP):
     """
     Estimate parameters for model function a*(x**b)+c*x+d
@@ -58,13 +66,38 @@ def nonlinear_regression_gn(X, Y, initialP):
     ### Your job starts here ###
 
     for iteration in range(GAUSS_NEWTON_ITERATIONS): #PLEASE do not change this line
-      raise NotImplementedError() #DELETE AND ADD YOUR CODE
+
+        # 1. Find error for current guess (the t'th parameter)
+        deltaY = Y - model_function(X, p)
+
+        # 2. Find Jacobian around current guess
+        J = calc_jacobian(X, p)
+
+        # 3. Calculate change in Guess
+        jTransposed = np.transpose(J)
+
+        # Multiply the matrices
+        jMultiplied = np.matmul(jTransposed, J)
+
+        # Take the inverse of the multiplied matrices
+        invJMul = np.linalg.inv(jMultiplied)
+
+        # Multiply them with A tranposed again
+        pBeforeY = np.matmul(invJMul, jTransposed)
+
+        # Finally, perform the final multiplication with the b vector, in this case
+        # it's deltaY, the output vector of the polynomial with varying parameters
+        deltaP = np.matmul(pBeforeY, deltaY)
+
+        # 4. Make new guess
+        p += deltaP
+
 
     ### Your job ends here ###
     return p
 
-GRADIENT_DESCENT_ITERATIONS=100000
-LEARNING_RATE=1e-6 #WARNING, this is probably too small!
+GRADIENT_DESCENT_ITERATIONS=100
+LEARNING_RATE=1e-3 #WARNING, this is probably too small!
 def nonlinear_regression_gd(X, Y, initialP):
     """
     Estimate parameters for model function a*(x**b)+c*x+d
@@ -86,12 +119,32 @@ def nonlinear_regression_gd(X, Y, initialP):
     p=np.copy(initialP)
 
     ### Your job starts here ###
+    a = LEARNING_RATE
 
+    tolerance = 0.001
+
+    converged = False
 
     for iteration in range(GRADIENT_DESCENT_ITERATIONS): #PLEASE do not change this line
-      raise NotImplementedError() #DELETE AND ADD YOUR CODE
-    # PLEASE use LEARNING_RATE variable defined above
+        # PLEASE use LEARNING_RATE variable defined above
 
+        # Calculate the difference between observed and predicted values
+        delta_y = Y - model_function(X, p)
+
+        # Calculate the transpose of the Jacobian matrix
+        jacobian_transpose = np.transpose(calc_jacobian(X, p))
+
+        # Compute the gradient
+        G = -2 * np.matmul(jacobian_transpose, delta_y)
+
+        # Calculate the new guess
+        newp = p - a * G
+
+        if np.all(abs(newp - p) < tolerance):
+            converged = True
+            break
+
+        p = newp
 
     ### Your job ends here ###
     return p
